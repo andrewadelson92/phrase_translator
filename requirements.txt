@@ -1,4 +1,1 @@
-sympy==1.14.0
-numpy==1.26.4
-pandas==2.2.2
 deep-translator==1.11.4

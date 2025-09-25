@@ -226,21 +226,19 @@ class VoiceModule:
         if not voice_name:
             return None
             
-        # Remove extra spaces and language codes
-        # Example: "Mónica              es_ES" -> "Mónica"
-        # Example: "Eddy (Spanish (Spain)) es_ES" -> "Eddy"
-        
-        # Split by spaces and take the first part
-        parts = voice_name.strip().split()
-        if not parts:
-            return None
-            
-        # If the first part contains parentheses, extract the name before parentheses
-        first_part = parts[0]
-        if '(' in first_part:
-            return first_part.split('(')[0].strip()
-        else:
-            return first_part
+        # Preserve language variant names in parentheses when present, e.g.:
+        #   "Eddy (Spanish (Spain)) es_ES" -> "Eddy (Spanish (Spain))"
+        # Otherwise, fall back to the base voice token, e.g.:
+        #   "Mónica              es_ES" -> "Mónica"
+        text = voice_name.strip()
+        if '(' in text and ')' in text:
+            # Return up to the last closing parenthesis to keep the variant label
+            end_idx = text.rfind(')')
+            if end_idx != -1:
+                return text[: end_idx + 1].strip()
+        # Fallback: use the first whitespace-separated token as the voice name
+        first_token = text.split()[0] if text else None
+        return first_token
     
     def speak_async(self, text):
         """
